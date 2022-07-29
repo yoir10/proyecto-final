@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dictionary API</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+    <div class="col-lg-8 mx-auto p-3 py-md-5">
+        <main>
+            <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+                <span class="fs-4">Ingenieria en Sistemas Computacionales : Programación WEB</span>
+            </header>
+            <div class="container">
+                <h5 class="font-monospace py-3 mb-4 border-bottom">Author: Yoir Emmanuel Farfan Estrada</h5>
+                <div class="input-group input-group-lg mb-3">
+                    <div class="input-group-text">Word</div>
+                    <input id="word" type="text" class="form-control" placeholder="Enter the word to search..." aria-label="Enter the word to search..."
+                        aria-describedby="button-addon2">
+                    <button class="btn btn-primary" type="button" id="btnSearch" onClick="search()">Search</button>
+                </div>
+                <div id="container"></div>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    <script type="text/javascript">
+
+        function createNode(element) {
+            return document.createElement(element);
+        }
+
+        function append(parent, el) {
+            return parent.appendChild(el);
+        }
+
+        function search(){
+            var div = document.getElementById('container');
+
+            div.innerHTML  = 'Searching...';
+
+            var word = document.getElementById('word').value;
+            if( word == '' ){
+                alert('Please enter the word to search!');
+                return false;
+            }
+            var url = "https://api.dictionaryapi.dev/api/v2/entries/en/" + word;
+            fetch(url)
+                .then((resp) => {
+                    console.log(resp);
+                    if(!resp.ok){
+                        throw new Error('Sorry pal, we couldn\'t find definitions for the word you were looking for.')
+                    }
+                    return resp.json();
+                })
+                .then(function (data) {
+                    div.innerHTML = '<h3><em>Results</em></h3>';
+                    let meanings = data[0].meanings;
+                    console.log(meanings);
+                    var ul = document.createElement('ul');
+                    return meanings.map(function (meaning) {
+
+                        let liTitle = document.createElement('li');
+                        let spanTitle = document.createElement('span');
+                        spanTitle.className = 'fw-bold';
+                        spanTitle.innerHTML = meaning.partOfSpeech;
+                        liTitle.appendChild(spanTitle)
+                        ul.appendChild(liTitle);
+
+                        let ulContent = document.createElement('ul');
+                        meaning.definitions.forEach(definition => {
+                            let liContent = document.createElement('li');
+                            let spanContent = document.createElement('span');
+                            spanContent.className = 'fst-italic';
+                            spanContent.innerHTML = definition.definition;
+                            liContent.appendChild(spanContent)
+                            ulContent.appendChild(liContent);
+                        });
+                        ul.appendChild(ulContent);
+
+                        div.append(ul);
+                    });
+
+                })
+                .catch(function (error) {
+                    div.innerHTML  = error;
+                });
+        }
+    </script>
+</body>
+</html>
